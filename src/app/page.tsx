@@ -1,202 +1,221 @@
 'use client';
 
-import { useState } from 'react';
-import { ShieldCheck, Cpu, Code2, Database, AlertCircle, RefreshCw, Server, CheckCircle2 } from 'lucide-react';
+import React from 'react';
+import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
+import { 
+  Bot, 
+  Sparkles, 
+  MessageSquare, 
+  ShieldCheck, 
+  Zap, 
+  ArrowRight, 
+  Compass, 
+  Smile, 
+  Lightbulb, 
+  BookOpen 
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 
-export default function Home() {
-  interface TestResponse {
-    success: boolean;
-    status: string;
-    message: string;
-    provider: string;
-    apiKeyStatus?: string;
-    testResponse?: string;
-    error?: string;
-  }
+export default function LandingPage() {
+  const { user } = useAuth();
 
-  const [testResult, setTestResult] = useState<TestResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  // Check if public environment variables are set
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const isSupabaseUrlSet = supabaseUrl && !supabaseUrl.includes('your-project-id') && supabaseUrl !== '';
-
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const isSupabaseKeySet = supabaseKey && !supabaseKey.includes('your-supabase-anon-key') && supabaseKey !== '';
-
-  const runAiTest = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/test-ai');
-      const data = await res.json() as TestResponse;
-      setTestResult(data);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Network error';
-      setTestResult({
-        success: false,
-        status: 'error',
-        message: 'Failed to call the test-ai API route.',
-        provider: 'groq',
-        error: errorMessage,
-      });
-    } finally {
-      setLoading(false);
+  const companions = [
+    {
+      name: 'Nova',
+      role: 'Empathetic Companion',
+      description: 'Nova provides a safe, warm space to talk, offering emotional support, validation, and compassionate active listening.',
+      icon: Smile,
+      color: 'from-pink-500 to-rose-500',
+      textColor: 'text-rose-400',
+      bgGlow: 'bg-rose-500/10'
+    },
+    {
+      name: 'Zephyr',
+      role: 'Witty Brainstormer',
+      description: 'Zephyr challenges your intellect with dry humor, playful energy, and creative out-of-the-box brainstorming sessions.',
+      icon: Lightbulb,
+      color: 'from-amber-500 to-orange-500',
+      textColor: 'text-orange-400',
+      bgGlow: 'bg-orange-500/10'
+    },
+    {
+      name: 'Astra',
+      role: 'Academic Mentor',
+      description: 'Astra adopts a structured, informative tone to help explain complex ideas, mentor your learning, and clarify educational topics.',
+      icon: BookOpen,
+      color: 'from-blue-500 to-indigo-500',
+      textColor: 'text-indigo-400',
+      bgGlow: 'bg-indigo-500/10'
+    },
+    {
+      name: 'Echo',
+      role: 'Philosophical Sage',
+      description: 'Echo engages you in meditative, deep discussions about ethics, life, and the larger questions of existence.',
+      icon: Compass,
+      color: 'from-violet-500 to-purple-500',
+      textColor: 'text-purple-400',
+      bgGlow: 'bg-purple-500/10'
     }
-  };
+  ];
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6 relative overflow-hidden font-sansSelection">
-      {/* Background glowing effects */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-violet-900/20 blur-[120px]" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-950/20 blur-[120px]" />
+    <main className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-hidden font-sans select-none">
+      
+      {/* Background radial ambient lights */}
+      <div className="absolute top-[-25%] left-[-15%] w-[60%] h-[60%] rounded-full bg-violet-900/15 blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-[-25%] right-[-15%] w-[60%] h-[60%] rounded-full bg-indigo-950/15 blur-[140px] pointer-events-none" />
 
-      <div className="max-w-4xl w-full z-10 space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-950/40 text-violet-400 text-xs font-semibold uppercase tracking-wider backdrop-blur-md">
-            <Server size={12} className="animate-pulse" /> Phase 1 Live: Setup & Abstractions
+      {/* Top Header Navigation */}
+      <header className="w-full h-16 flex items-center justify-between px-6 lg:px-12 border-b border-slate-900/80 backdrop-blur-md z-20 shrink-0">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-xl bg-violet-650 flex items-center justify-center text-white shadow-lg shadow-violet-500/20">
+            <Bot size={15} />
           </div>
-          <h1 className="text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
-            Solace <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-indigo-400">v2</span>
-          </h1>
-          <p className="text-slate-400 max-w-lg mx-auto text-base">
-            Your production-ready, custom-built AI companion web application. 
-            All core architectural setups and provider abstractions are configured.
-          </p>
+          <span className="text-sm font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-350">
+            SOLACE
+          </span>
         </div>
 
-        {/* Status Dashboard Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Stack Status Card */}
-          <div className="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-xl space-y-6">
-            <h2 className="text-lg font-semibold flex items-center gap-2 border-b border-slate-800 pb-3">
-              <Code2 className="text-violet-400" size={18} /> System Initialization
-            </h2>
-
-            <div className="space-y-4">
-              {/* Next.js Status */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-800/50 flex items-center justify-center border border-slate-700/50">
-                    <span className="text-xs font-bold text-slate-300">N15</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Next.js Framework</p>
-                    <p className="text-xs text-slate-500">App Router & Server Components</p>
-                  </div>
-                </div>
-                <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
-                  <CheckCircle2 size={12} /> Ready
-                </span>
-              </div>
-
-              {/* Tailwind CSS Status */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-800/50 flex items-center justify-center border border-slate-700/50">
-                    <span className="text-xs font-bold text-slate-300">TW4</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Tailwind CSS v4</p>
-                    <p className="text-xs text-slate-500">Utility-First CSS & Theme Engines</p>
-                  </div>
-                </div>
-                <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
-                  <CheckCircle2 size={12} /> Active
-                </span>
-              </div>
-
-              {/* Supabase Status */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-800/50 flex items-center justify-center border border-slate-700/50">
-                    <Database size={14} className="text-slate-300" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Supabase Configuration</p>
-                    <p className="text-xs text-slate-500">Client, Server, & Session Cookies</p>
-                  </div>
-                </div>
-                {isSupabaseUrlSet && isSupabaseKeySet ? (
-                  <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
-                    <CheckCircle2 size={12} /> Configured
-                  </span>
-                ) : (
-                  <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1.5">
-                    <AlertCircle size={12} /> env.local Pending
-                  </span>
-                )}
-              </div>
-
-              {/* AI Provider Status */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-800/50 flex items-center justify-center border border-slate-700/50">
-                    <Cpu size={14} className="text-slate-300" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">AI Abstraction Layer</p>
-                    <p className="text-xs text-slate-500">Provider-Agnostic Interface</p>
-                  </div>
-                </div>
-                <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-violet-500/10 text-violet-400 border border-violet-500/20">
-                  Groq Loaded
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* AI Connectivity Checker Card */}
-          <div className="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-xl flex flex-col justify-between">
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold flex items-center gap-2 border-b border-slate-800 pb-3">
-                <ShieldCheck className="text-emerald-400" size={18} /> Connectivity Diagnostic
-              </h2>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                We created a test API route at <code className="text-slate-200 bg-slate-800 px-1 py-0.5 rounded">/api/test-ai</code>.
-                Click below to hit this route. It will test if our provider-agnostic factory resolves correctly and verify your API keys.
-              </p>
-
-              {testResult && (
-                <div className="mt-4 p-4 rounded-xl text-xs font-mono max-h-48 overflow-y-auto bg-slate-950/80 border border-slate-800/50 scrollbar-thin text-slate-300">
-                  <div className="flex items-center justify-between mb-2 pb-1 border-b border-slate-800">
-                    <span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Diagnostics Console</span>
-                    <span className={`h-2 w-2 rounded-full ${testResult.success ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                  </div>
-                  <pre className="whitespace-pre-wrap">{JSON.stringify(testResult, null, 2)}</pre>
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={runAiTest}
-              disabled={loading}
-              className="mt-6 w-full py-3 px-4 bg-violet-600 hover:bg-violet-500 active:bg-violet-700 disabled:opacity-50 text-white rounded-xl font-medium transition-all shadow-lg shadow-violet-500/10 flex items-center justify-center gap-2 cursor-pointer"
+        <nav className="flex items-center gap-4">
+          {user ? (
+            <Link 
+              href="/dashboard"
+              className="text-xs font-semibold px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-xl shadow-lg shadow-violet-600/15 transition-all"
             >
-              {loading ? (
-                <>
-                  <RefreshCw className="animate-spin" size={16} />
-                  Running Diagnostic...
-                </>
-              ) : (
-                <>
-                  <RefreshCw size={16} />
-                  Verify AI Abstraction & Connection
-                </>
-              )}
-            </button>
-          </div>
+              Enter Workspace
+            </Link>
+          ) : (
+            <>
+              <Link 
+                href="/login"
+                className="text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link 
+                href="/register"
+                className="text-xs font-semibold px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-xl shadow-lg shadow-violet-600/15 transition-all"
+              >
+                Get Started
+              </Link>
+            </>
+          )}
+        </nav>
+      </header>
+
+      {/* Hero Section */}
+      <section className="flex-1 max-w-6xl w-full mx-auto px-6 lg:px-12 py-16 lg:py-24 z-10 flex flex-col justify-center gap-12">
+        <div className="text-center space-y-6 max-w-3xl mx-auto">
+          
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-violet-500/25 bg-violet-955/20 text-violet-400 text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm"
+          >
+            <Sparkles size={11} className="animate-pulse" />
+            Empowering AI companions at your service
+          </motion.div>
+
+          <motion.h1 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.08] bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-400"
+          >
+            Real Connections.<br />
+            Powered by <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-indigo-300 to-purple-400">Solace v2</span>
+          </motion.h1>
+
+          <motion.p 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-slate-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed"
+          >
+            Experience a private, secure workspace to speak, explore ideas, and seek intellectual mentorship with distinct, customizable companion archetypes.
+          </motion.p>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex flex-col sm:flex-row justify-center gap-3 pt-2"
+          >
+            <Link 
+              href={user ? "/dashboard" : "/register"}
+              className="px-6 py-3 bg-violet-650 hover:bg-violet-550 text-white rounded-xl text-xs font-bold transition-all shadow-xl shadow-violet-600/10 flex items-center justify-center gap-1.5 group"
+            >
+              <span>Initialize Companion</span>
+              <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+            <Link 
+              href="/login"
+              className="px-6 py-3 bg-slate-900 border border-slate-800 hover:bg-slate-800/80 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center"
+            >
+              Access Account
+            </Link>
+          </motion.div>
         </div>
 
-        {/* Helpful instructions */}
-        <div className="p-5 rounded-2xl bg-slate-900/20 border border-slate-800/40 text-center text-xs text-slate-500 space-y-2 max-w-lg mx-auto">
-          <p className="font-semibold text-slate-400">💡 Senior Engineer&apos;s Advice</p>
-          <p>
-            Please copy <code className="text-slate-300">.env.example</code> to <code className="text-slate-300">.env.local</code> (done for you) 
-            and replace the placeholders with your actual **Supabase URL**, **Anon Key**, and **Groq API Key**. Then click the Verify button above!
-          </p>
+        {/* Companion Archetypes Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-6">
+          {companions.map((comp, idx) => {
+            const Icon = comp.icon;
+            return (
+              <motion.div
+                key={comp.name}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * idx + 0.3 }}
+                className="group relative bg-slate-900/35 border border-slate-900/80 rounded-2xl p-5 hover:border-slate-800/80 hover:bg-slate-900/50 backdrop-blur-xl transition-all duration-200"
+              >
+                <div className={`absolute top-0 right-0 w-24 h-24 rounded-full filter blur-xl opacity-20 group-hover:opacity-40 transition-opacity ${comp.bgGlow}`} />
+                
+                <div className="space-y-4 relative">
+                  <div className={`w-8 h-8 rounded-xl bg-gradient-to-r ${comp.color} flex items-center justify-center text-white shadow-md`}>
+                    <Icon size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-black text-slate-200 group-hover:text-white transition-colors">{comp.name}</h3>
+                    <p className={`text-[9px] font-bold uppercase tracking-wider ${comp.textColor}`}>{comp.role}</p>
+                  </div>
+                  <p className="text-[10px] text-slate-500 leading-normal group-hover:text-slate-400 transition-colors">
+                    {comp.description}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
-      </div>
+
+        {/* Tech Stack Info Banner */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="flex flex-wrap justify-center items-center gap-x-8 gap-y-3 border-t border-slate-900/60 pt-10 text-[10px] font-semibold text-slate-650"
+        >
+          <div className="flex items-center gap-1.5">
+            <ShieldCheck size={12} className="text-slate-500" />
+            <span>Supabase Secure Authentication</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Zap size={12} className="text-slate-500" />
+            <span>Groq LLM Streaming API</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <MessageSquare size={12} className="text-slate-500" />
+            <span>Drizzle PostgreSQL Schemas</span>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Footer */}
+      <footer className="w-full py-6 text-center text-[10px] text-slate-700 border-t border-slate-900/60 z-20 shrink-0">
+        &copy; {new Date().getFullYear()} Solace Workspace. All rights reserved. Deployed production-ready.
+      </footer>
+
     </main>
   );
 }
