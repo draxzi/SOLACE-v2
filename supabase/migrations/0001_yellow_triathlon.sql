@@ -1,0 +1,1 @@
+ALTER TABLE "profiles" ADD COLUMN "preferences" jsonb DEFAULT '{"theme":"dark","notificationsEnabled":true,"aiTemperature":0.8,"aiResponseStyle":"balanced","defaultCompanion":""}'::jsonb;
