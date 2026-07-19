@@ -326,7 +326,7 @@ export default function ChatPage() {
       const { error } = await supabase.from('conversations').delete().eq('id', chatId);
       if (!error) {
         queryClient.invalidateQueries({ queryKey: ['conversations'] });
-        router.push('/dashboard');
+        router.push('/chat');
       }
     }
   };
@@ -344,10 +344,10 @@ export default function ChatPage() {
       <div className="h-full flex flex-col items-center justify-center text-slate-400 bg-slate-950 space-y-4">
         <p className="text-sm">Conversation not found.</p>
         <button 
-          onClick={() => router.push('/dashboard')}
+          onClick={() => router.push('/chat')}
           className="text-xs text-violet-400 hover:underline"
         >
-          Return to Dashboard
+          Return to Workspace
         </button>
       </div>
     );
@@ -360,7 +360,7 @@ export default function ChatPage() {
       <div className="h-14 flex items-center justify-between px-4 border-b border-slate-900 bg-slate-905/40 backdrop-blur-sm dark:border-slate-800/80 light:border-slate-200 shrink-0">
         <div className="flex items-center gap-3">
           <button 
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/chat')}
             className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 cursor-pointer"
           >
             <ArrowLeft size={16} />

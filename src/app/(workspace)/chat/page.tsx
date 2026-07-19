@@ -54,7 +54,7 @@ function ChatFormContent() {
   const welcomeMessage: Message = {
     id: 'welcome',
     role: 'assistant',
-    content: "Hello. I am here for you. Whenever life feels heavy, you don't have to carry it alone. Take a deep breath and tell me whatever is on your mind. How are you feeling today?",
+    content: "Hi, I'm Solace. It's nice to see you. What's on your mind today?",
     createdAt: new Date().toISOString()
   };
 
@@ -360,8 +360,8 @@ function ChatFormContent() {
             <Heart size={11} className="fill-violet-400/20" />
           </div>
           <div>
-            <h1 className="text-xs font-bold text-slate-100">Solace Workspace</h1>
-            <p className="text-[9px] text-slate-550 font-medium tracking-wider">SUPPORTIVE COMPANION</p>
+            <h1 className="text-xs font-bold text-slate-100">Solace</h1>
+            <p className="text-[9px] text-slate-550 font-medium tracking-wider">A quiet place to breathe, think, and talk.</p>
           </div>
         </div>
 
@@ -397,9 +397,9 @@ function ChatFormContent() {
               <Bot size={22} />
             </div>
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-slate-200">Start your dialogue</h3>
+              <h3 className="text-xs font-bold text-slate-200">Solace</h3>
               <p className="text-[10px] text-slate-550 leading-relaxed font-light">
-                Take a deep breath. Type a message below to share whatever you are carrying. Solace is here to listen.
+                A quiet place to breathe, think, and talk. Write whatever is on your mind.
               </p>
             </div>
           </div>

@@ -177,10 +177,10 @@ export default function Sidebar() {
               ? 'bg-slate-800 text-slate-100 dark:bg-slate-900 light:bg-slate-200 light:text-slate-950 font-bold'
               : 'hover:bg-slate-800/40 hover:text-slate-100 dark:hover:bg-slate-900/40 light:hover:bg-slate-200/40'
           } ${isSidebarCollapsed && !isSidebarOpen ? 'justify-center py-3' : 'gap-3'}`}
-          title="Companion Chat"
+          title="Solace"
         >
           <MessageSquare size={16} />
-          {(!isSidebarCollapsed || isSidebarOpen) && <span>Companion Chat</span>}
+          {(!isSidebarCollapsed || isSidebarOpen) && <span>Solace</span>}
         </Link>
       </div>
 
