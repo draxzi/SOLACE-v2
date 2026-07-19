@@ -37,7 +37,7 @@ export default function ResetPasswordPage() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/chat');
       }, 1500);
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : 'Failed to update password. Session may have expired.';

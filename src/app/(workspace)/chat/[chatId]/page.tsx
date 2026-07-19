@@ -43,9 +43,15 @@ export default function ChatPage() {
   const params = useParams();
   const router = useRouter();
   const chatId = params.chatId as string;
-  useAuth();
+  const { user, loading: authLoading } = useAuth();
   const supabase = createClient();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push(`/login?redirectTo=/chat/${chatId}`);
+    }
+  }, [user, authLoading, router, chatId]);
 
   const [inputValue, setInputValue] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);

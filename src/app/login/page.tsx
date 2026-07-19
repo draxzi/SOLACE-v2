@@ -18,7 +18,7 @@ function LoginForm() {
   const { user } = useAuth();
   const supabase = createClient();
 
-  const redirectTo = searchParams.get('redirectTo') || '/dashboard';
+  const redirectTo = searchParams.get('redirectTo') || '/chat';
 
   useEffect(() => {
     if (user) {

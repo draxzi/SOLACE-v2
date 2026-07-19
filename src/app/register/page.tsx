@@ -20,7 +20,7 @@ function RegisterForm() {
   const { user, refreshProfile } = useAuth();
   const supabase = createClient();
 
-  const redirectTo = searchParams.get('redirectTo') || '/dashboard';
+  const redirectTo = searchParams.get('redirectTo') || '/chat';
 
   useEffect(() => {
     if (user && !success) {
@@ -34,11 +34,15 @@ function RegisterForm() {
     setError(null);
 
     try {
+      const origin = typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      const redirectUrl = `${origin}/api/auth/callback`;
+
       // 1. Sign up the user in Supabase Auth
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: redirectUrl,
           data: {
             full_name: name,
           },

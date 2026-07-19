@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/providers/ThemeProvider';
 import { createClient } from '@/lib/supabase/client';
@@ -35,7 +36,14 @@ const PRESET_AVATARS = [
 export default function SettingsPage() {
   const { user, profile, refreshProfile, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const router = useRouter();
   const supabase = createClient();
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/login?redirectTo=/settings');
+    }
+  }, [user, router]);
 
   const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [loading, setLoading] = useState(false);

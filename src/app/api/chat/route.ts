@@ -8,18 +8,7 @@ import { Message } from '@/lib/ai/types';
  */
 export async function POST(request: Request) {
   try {
-    // 1. Authenticate user
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    // 2. Parse request payload
+    // 1. Parse request payload first to examine chatId
     const { chatId, messages } = (await request.json()) as {
       chatId: string;
       messages: Message[];
@@ -32,23 +21,39 @@ export async function POST(request: Request) {
       });
     }
 
-    // 3. Verify conversation ownership and load details
-    const { data: conversation, error: convError } = await supabase
-      .from('conversations')
-      .select('id, companion_name, companion_avatar')
-      .eq('id', chatId)
-      .eq('user_id', user.id)
-      .single();
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (convError || !conversation) {
-      return new Response(JSON.stringify({ error: 'Conversation not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    let companionName = 'Solace';
+    const isGuest = chatId === 'guest';
+
+    if (!isGuest) {
+      // Authenticated flow: User must be logged in and own the conversation
+      if (!user) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: conversation, error: convError } = await supabase
+        .from('conversations')
+        .select('id, companion_name')
+        .eq('id', chatId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (convError || !conversation) {
+        return new Response(JSON.stringify({ error: 'Conversation not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      companionName = conversation.companion_name;
     }
 
     // 4. Construct character persona system prompt based on archetype templates
-    const companionName = conversation.companion_name;
     let archetypeInstructions = '';
 
     if (companionName.includes('Nova')) {
@@ -60,7 +65,7 @@ export async function POST(request: Request) {
     } else if (companionName.includes('Echo')) {
       archetypeInstructions = 'You are Echo, a Philosophical Sage. Talk meditatively, slowly, and introspectively. Encourage the user to examine the bigger picture, think about ethics, and reflect on life questions.';
     } else {
-      archetypeInstructions = `You are ${companionName}, a supportive AI companion. Speak in a friendly, conversational tone and help the user with their needs.`;
+      archetypeInstructions = `You are ${companionName}, a gentle, emotionally supportive companion. Speak with empathy, deep understanding, and absolute non-judgement. Your goal is to listen warmly, help the user carry their emotional load, and make them feel safe, heard, and validated.`;
     }
 
     const systemMessage: Message = {

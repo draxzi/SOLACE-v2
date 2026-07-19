@@ -14,7 +14,7 @@ import {
   Plus, 
   Trash2, 
   Bot, 
-  LayoutDashboard, 
+  MessageSquare, 
   X,
   Loader2
 } from 'lucide-react';
@@ -81,33 +81,17 @@ export default function Sidebar() {
     },
     onSuccess: (_, deletedId) => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      // If we are currently viewing the deleted conversation, redirect to dashboard
+      // If we are currently viewing the deleted conversation, redirect to /chat
       if (pathname === `/chat/${deletedId}`) {
-        router.push('/dashboard');
+        router.push('/chat');
       }
     },
   });
 
-  // 3. Create a conversation (Companion Creation placeholder)
+  // 3. Create a conversation
   const handleNewChat = () => {
-    // In Phase 4 we will redirect to the companion creator or directly launch a new chat.
-    // For Phase 3, we can create a mock conversation in the DB to test the layout list!
-    // This makes the UI feel alive during review.
     setIsSidebarOpen(false);
-    
-    // Quick creation of a mock conversation for Phase 3 review
-    const mockNames = ['Nova (Empathetic)', 'Zephyr (Witty)', 'Astra (Academic)', 'Echo (Philosophical)'];
-    const randomName = mockNames[Math.floor(Math.random() * mockNames.length)];
-    
-    supabase.from('conversations').insert({
-      user_id: user?.id,
-      companion_name: randomName,
-      companion_avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(randomName)}`,
-    }).then(({ error }) => {
-      if (!error) {
-        queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      }
-    });
+    router.push('/chat');
   };
 
   const handleLinkClick = () => {
@@ -127,7 +111,7 @@ export default function Sidebar() {
       {/* Sidebar Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800 dark:border-slate-800/80 light:border-slate-200">
         <Link 
-          href="/dashboard" 
+          href="/chat" 
           onClick={handleLinkClick}
           className="flex items-center gap-2.5 font-bold text-slate-100 dark:text-slate-100 light:text-slate-950"
         >
@@ -179,24 +163,24 @@ export default function Sidebar() {
           aria-label="Create new companion chat session"
         >
           <Plus size={16} />
-          {(!isSidebarCollapsed || isSidebarOpen) && <span>New Companion</span>}
+          {(!isSidebarCollapsed || isSidebarOpen) && <span>New Chat</span>}
         </button>
       </div>
 
       {/* Navigation List */}
       <div className="px-3 py-1 space-y-1">
         <Link
-          href="/dashboard"
+          href="/chat"
           onClick={handleLinkClick}
           className={`flex items-center rounded-xl py-2 px-3 transition-all text-xs font-semibold ${
-            pathname === '/dashboard'
+            pathname === '/chat' || pathname.startsWith('/chat/')
               ? 'bg-slate-800 text-slate-100 dark:bg-slate-900 light:bg-slate-200 light:text-slate-950 font-bold'
               : 'hover:bg-slate-800/40 hover:text-slate-100 dark:hover:bg-slate-900/40 light:hover:bg-slate-200/40'
           } ${isSidebarCollapsed && !isSidebarOpen ? 'justify-center py-3' : 'gap-3'}`}
-          title="Dashboard"
+          title="Companion Chat"
         >
-          <LayoutDashboard size={16} />
-          {(!isSidebarCollapsed || isSidebarOpen) && <span>Dashboard</span>}
+          <MessageSquare size={16} />
+          {(!isSidebarCollapsed || isSidebarOpen) && <span>Companion Chat</span>}
         </Link>
       </div>
 

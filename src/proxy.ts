@@ -35,9 +35,18 @@ export async function proxy(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  // 2. Protect routes: users must be logged in to access dashboard, chat, or settings
-  const protectedPaths = ['/dashboard', '/chat', '/settings'];
-  const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
+  // Redirect legacy /dashboard to the core /chat workspace
+  if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = '/chat';
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  // 2. Protect routes: users must be logged in to access saved conversations or settings
+  // /chat is public (guest mode), but /chat/[chatId] and /settings are protected
+  const isProtected = 
+    pathname.startsWith('/settings') || 
+    (pathname.startsWith('/chat/') && pathname !== '/chat/');
 
   if (isProtected && !user) {
     const redirectUrl = request.nextUrl.clone();
@@ -53,7 +62,7 @@ export async function proxy(request: NextRequest) {
 
   if (isAuthPath && user) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = '/dashboard';
+    redirectUrl.pathname = '/chat';
     return NextResponse.redirect(redirectUrl);
   }
 

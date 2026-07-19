@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 import LayoutProvider from '@/context/LayoutContext';
@@ -12,14 +11,7 @@ import LayoutProvider from '@/context/LayoutContext';
  * Enforces client-side auth verification and builds the App Shell (Sidebar + Header + Page Pane).
  */
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
+  const { loading } = useAuth();
 
   // If loading session, show loading spinner
   if (loading) {
@@ -29,11 +21,6 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
         <span className="text-sm font-medium tracking-wide">Loading workspace...</span>
       </div>
     );
-  }
-
-  // Double fallback if not authenticated
-  if (!user) {
-    return null;
   }
 
   return (
