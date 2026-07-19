@@ -1,4 +1,4 @@
-# Solace v2 - AI Companion Workspace
+# Solace v2 - AI Companion Workspace (UX Rebuild Checkpoint)
 
 Solace v2 is a premium, secure, production-ready AI companion web application built on **Next.js 16 (App Router)**, **TypeScript**, **Tailwind CSS v4**, **Supabase**, and the **Groq API**. 
 
