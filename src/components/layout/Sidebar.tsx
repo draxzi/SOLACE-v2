@@ -172,19 +172,21 @@ export default function Sidebar() {
         <Link
           href="/chat"
           onClick={handleLinkClick}
-          className={`flex items-center rounded-xl py-2.5 px-3 transition-all duration-300 text-xs font-semibold ${
+          className={`flex items-center rounded-xl py-2.5 px-3 transition-all duration-300 text-xs font-medium border ${
             pathname === '/chat'
-              ? 'bg-card text-foreground font-bold shadow-sm border border-border/60'
-              : 'hover:bg-card/45 hover:text-foreground text-muted-foreground'
+              ? 'bg-card text-foreground border-border/80 shadow-sm font-semibold'
+              : 'bg-transparent border-transparent hover:bg-card/45 hover:text-foreground text-muted-foreground hover:border-border/30'
           } ${isSidebarCollapsed && !isSidebarOpen ? 'justify-center py-3' : 'gap-3'}`}
           title="Solace"
         >
           <MessageSquare size={16} />
           {(!isSidebarCollapsed || isSidebarOpen) && (
-            <div className="flex flex-col items-start min-w-0 leading-tight">
-              <span className="font-bold text-cream-warm">Solace</span>
+            <div className="flex flex-col items-start min-w-0 gap-0.5 leading-tight">
+              <span className="text-cream-warm font-medium">Solace</span>
               {!user && (
-                <span className="text-[9px] text-primary/80 font-normal">Temporary Conversation</span>
+                <span className="text-[8px] bg-primary/10 border border-primary/20 text-primary px-1.5 py-0.5 rounded-full font-light tracking-wide scale-90 origin-left">
+                  Temporary Conversation
+                </span>
               )}
             </div>
           )}
@@ -200,7 +202,7 @@ export default function Sidebar() {
       )}
 
       {/* Conversation List Scroll Area */}
-      <div className="flex-1 overflow-y-auto px-3 py-1 space-y-0.5">
+      <div className="flex-1 overflow-y-auto px-3 py-2 space-y-1.5">
         <AnimatePresence initial={false}>
           {conversations.map((conv) => {
             const isActive = pathname === `/chat/${conv.id}`;
@@ -215,10 +217,10 @@ export default function Sidebar() {
                 <Link
                   href={`/chat/${conv.id}`}
                   onClick={handleLinkClick}
-                  className={`w-full flex items-center justify-between rounded-xl py-2 px-3 text-xs transition-all duration-300 ${
+                  className={`w-full flex items-center justify-between rounded-xl py-2.5 px-3 text-xs transition-all duration-300 border ${
                     isActive
-                      ? 'bg-card text-foreground font-bold shadow-sm border border-border/50'
-                      : 'hover:bg-card/35 hover:text-foreground text-muted-foreground'
+                      ? 'bg-card text-foreground border-border/80 font-medium shadow-sm'
+                      : 'bg-transparent border-transparent hover:bg-card/45 hover:text-foreground text-muted-foreground hover:border-border/30'
                   } ${isSidebarCollapsed && !isSidebarOpen ? 'justify-center py-3' : 'gap-3'}`}
                   title={conv.companionName}
                 >
@@ -310,7 +312,7 @@ export default function Sidebar() {
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              transition={{ duration: 0.35, ease: 'easeInOut' }}
               className="relative w-[280px] max-w-[85vw] h-full z-50 flex flex-col"
             >
               {sidebarContent}

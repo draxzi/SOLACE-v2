@@ -128,7 +128,7 @@ export default function Header() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.15 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
                   className="absolute right-0 mt-2 w-56 rounded-2xl bg-card border border-border shadow-2xl p-1.5 z-50"
                 >
                   {/* Header User Detail */}

@@ -525,10 +525,10 @@ function ChatFormContent() {
                 )}
                 
                 <div className="flex flex-col gap-1 max-w-[80%] md:max-w-[70%] items-start">
-                  <div className={`relative rounded-[22px] px-4.5 py-3.5 text-xs leading-relaxed group shadow-sm w-full ${
+                  <div className={`relative px-4.5 py-3.5 text-xs leading-relaxed group shadow-sm w-full ${
                     msg.role === 'user'
-                      ? 'bg-primary text-background rounded-tr-[4px] font-medium'
-                      : 'bg-card border border-border/60 text-foreground rounded-tl-[4px] font-light'
+                      ? 'bg-primary text-background rounded-[20px] rounded-tr-[12px] font-medium'
+                      : 'bg-card border border-border/60 text-foreground rounded-[20px] rounded-tl-[12px] font-light'
                   }`}>
                     <Markdown content={msg.content} />
    
@@ -559,7 +559,7 @@ function ChatFormContent() {
                   <Bot size={15} />
                 </div>
                 <div className="flex flex-col gap-1 max-w-[80%] md:max-w-[70%] items-start">
-                  <div className="max-w-full rounded-[22px] rounded-tl-[4px] px-4.5 py-3.5 text-xs leading-relaxed bg-card border border-border/60 text-foreground shadow-sm font-light">
+                  <div className="max-w-full rounded-[20px] rounded-tl-[12px] px-4.5 py-3.5 text-xs leading-relaxed bg-card border border-border/60 text-foreground shadow-sm font-light">
                     <Markdown content={streamedText} />
                     <span className="inline-block h-3 w-1.5 bg-primary rounded-sm animate-pulse ml-0.5" />
                   </div>
@@ -573,7 +573,7 @@ function ChatFormContent() {
                 <div className="w-8 h-8 rounded-xl bg-card border border-border/80 text-primary flex items-center justify-center shrink-0 shadow-sm">
                   <Bot size={15} />
                 </div>
-                <div className="bg-card border border-border/60 rounded-[22px] rounded-tl-[4px] px-4.5 py-3.5 flex items-center gap-1.5 shadow-sm">
+                <div className="bg-card border border-border/60 rounded-[20px] rounded-tl-[12px] px-4.5 py-3.5 flex items-center gap-1.5 shadow-sm">
                   <span className="w-1.5 h-1.5 bg-primary rounded-full animate-slow-bounce" style={{ animationDelay: '0ms' }} />
                   <span className="w-1.5 h-1.5 bg-primary rounded-full animate-slow-bounce" style={{ animationDelay: '250ms' }} />
                   <span className="w-1.5 h-1.5 bg-primary rounded-full animate-slow-bounce" style={{ animationDelay: '500ms' }} />
@@ -619,7 +619,7 @@ function ChatFormContent() {
           </div>
         )}
 
-        <form onSubmit={handleSend} className="max-w-2xl mx-auto w-full relative flex items-end p-2 bg-card/65 border border-border focus-within:border-primary/40 rounded-3xl shadow-lg transition-all duration-300">
+        <form onSubmit={handleSend} className="max-w-2xl mx-auto w-full relative flex items-end p-2 bg-card/65 border border-border/80 focus-within:border-primary/40 rounded-[24px] shadow-[0_12px_40px_-12px_rgba(0,0,0,0.45)] backdrop-blur-md transition-all duration-300">
           <textarea
             ref={textareaRef}
             rows={1}

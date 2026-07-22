@@ -578,10 +578,10 @@ export default function ChatPage() {
                     {/* Chat Bubble & Copy/Retry Actions */}
                     <div className="flex flex-col gap-1 max-w-[80%] md:max-w-[70%] items-start">
                       <div
-                        className={`rounded-[22px] px-4.5 py-3.5 text-xs leading-relaxed shadow-sm w-full ${
+                        className={`rounded-[20px] px-4.5 py-3.5 text-xs leading-relaxed shadow-sm w-full ${
                           isUser
-                            ? 'bg-primary text-background rounded-tr-[4px] font-medium'
-                            : 'bg-card border border-border/60 text-foreground rounded-tl-[4px] font-light'
+                            ? 'bg-primary text-background rounded-tr-[12px] font-medium'
+                            : 'bg-card border border-border/60 text-foreground rounded-tl-[12px] font-light'
                         }`}
                       >
                         {isUser ? (
@@ -650,7 +650,7 @@ export default function ChatPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1 max-w-[80%] md:max-w-[70%] items-start">
-                  <div className="rounded-[22px] rounded-tl-[4px] px-4.5 py-3.5 text-xs leading-relaxed shadow-sm bg-card border border-border/60 text-foreground font-light w-full">
+                  <div className="rounded-[20px] rounded-tl-[12px] px-4.5 py-3.5 text-xs leading-relaxed shadow-sm bg-card border border-border/60 text-foreground font-light w-full">
                     <Markdown content={streamedText} />
                     <span className="inline-block h-3 w-1.5 bg-primary rounded-sm animate-pulse ml-0.5" />
                   </div>
@@ -664,7 +664,7 @@ export default function ChatPage() {
                 <div className="shrink-0 w-8 h-8 rounded-xl bg-card border border-border/80 text-primary flex items-center justify-center shadow-sm">
                   <Bot size={15} />
                 </div>
-                <div className="bg-card border border-border/60 rounded-[22px] rounded-tl-[4px] px-4.5 py-3.5 flex items-center gap-1.5 shadow-sm">
+                <div className="bg-card border border-border/60 rounded-[20px] rounded-tl-[12px] px-4.5 py-3.5 flex items-center gap-1.5 shadow-sm">
                   <span className="w-1.5 h-1.5 bg-primary rounded-full animate-slow-bounce" style={{ animationDelay: '0ms' }} />
                   <span className="w-1.5 h-1.5 bg-primary rounded-full animate-slow-bounce" style={{ animationDelay: '250ms' }} />
                   <span className="w-1.5 h-1.5 bg-primary rounded-full animate-slow-bounce" style={{ animationDelay: '500ms' }} />
@@ -711,7 +711,7 @@ export default function ChatPage() {
           </div>
         )}
 
-        <form onSubmit={handleSend} className="max-w-2xl mx-auto w-full relative flex items-end p-2 bg-card/65 border border-border focus-within:border-primary/40 rounded-3xl shadow-lg transition-all duration-300">
+        <form onSubmit={handleSend} className="max-w-2xl mx-auto w-full relative flex items-end p-2 bg-card/65 border border-border/80 focus-within:border-primary/40 rounded-[24px] shadow-[0_12px_40px_-12px_rgba(0,0,0,0.45)] backdrop-blur-md transition-all duration-300">
           <textarea
             ref={textareaRef}
             rows={1}
@@ -719,7 +719,7 @@ export default function ChatPage() {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isStreaming}
-            placeholder={isStreaming ? "Thinking..." : `Message Solace...`}
+            placeholder={isStreaming ? "Thinking..." : "Type whatever's on your mind..."}
             className="w-full pl-4 pr-12 py-3 bg-transparent border-none outline-none text-foreground text-xs focus:ring-0 focus:outline-none placeholder:text-muted-foreground/40 font-light resize-none max-h-40 overflow-y-auto scrollbar-none"
             aria-label={`Message text input`}
           />
