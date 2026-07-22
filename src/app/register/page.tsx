@@ -82,40 +82,40 @@ function RegisterForm() {
   };
 
   return (
-    <div className="w-full max-w-md p-8 rounded-3xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-xl shadow-2xl relative">
+    <div className="w-full max-w-md p-8 rounded-3xl bg-card border border-border shadow-2xl relative backdrop-blur-md">
       {/* Decorative top glowing accent */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-violet-500 to-transparent shadow-[0_0_20px_rgba(139,92,246,0.5)]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_20px_rgba(253,164,175,0.4)]" />
 
       <div className="space-y-6">
         <div className="text-center space-y-2">
-          <div className="inline-flex p-3 rounded-2xl bg-violet-500/10 text-violet-400 border border-violet-500/20">
+          <div className="inline-flex p-3 rounded-2xl bg-primary-glow text-primary border border-primary/20">
             <UserPlus size={24} />
           </div>
-          <h2 className="text-2xl font-bold text-slate-100">Create Account</h2>
-          <p className="text-xs text-slate-400">Join Solace and design your AI companion</p>
+          <h2 className="text-2xl font-bold text-cream-warm">Create Account</h2>
+          <p className="text-xs text-muted-foreground/65 font-light">Join Solace and design your companion</p>
         </div>
 
         {error && (
-          <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-start gap-2">
+          <div className="p-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-start gap-2.5">
             <AlertCircle size={16} className="shrink-0 mt-0.5" />
-            <span>{error}</span>
+            <span className="font-light">{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-start gap-2">
+          <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-start gap-2.5">
             <CheckCircle2 size={16} className="shrink-0 mt-0.5" />
-            <span>Registration successful! Redirecting you to home...</span>
+            <span className="font-light">Registration successful! Redirecting you to home...</span>
           </div>
         )}
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400 tracking-wide" htmlFor="name">
+            <label className="text-xs font-semibold text-muted-foreground/80 tracking-wide" htmlFor="name">
               Full Name
             </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-muted-foreground/50">
                 <UserIcon size={16} />
               </span>
               <input
@@ -125,17 +125,17 @@ function RegisterForm() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="John Doe"
-                className="w-full pl-10 pr-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all placeholder:text-slate-600"
+                className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-foreground text-xs focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/40 font-light"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400 tracking-wide" htmlFor="email">
+            <label className="text-xs font-semibold text-muted-foreground/80 tracking-wide" htmlFor="email">
               Email Address
             </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-muted-foreground/50">
                 <Mail size={16} />
               </span>
               <input
@@ -145,17 +145,17 @@ function RegisterForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full pl-10 pr-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all placeholder:text-slate-600"
+                className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-foreground text-xs focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/40 font-light"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400 tracking-wide" htmlFor="password">
+            <label className="text-xs font-semibold text-muted-foreground/80 tracking-wide" htmlFor="password">
               Password
             </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-muted-foreground/50">
                 <Lock size={16} />
               </span>
               <input
@@ -166,7 +166,7 @@ function RegisterForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 6 characters"
-                className="w-full pl-10 pr-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all placeholder:text-slate-600"
+                className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-foreground text-xs focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/40 font-light"
               />
             </div>
           </div>
@@ -174,7 +174,7 @@ function RegisterForm() {
           <button
             type="submit"
             disabled={loading || success}
-            className="w-full py-3 px-4 bg-violet-600 hover:bg-violet-500 active:bg-violet-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-violet-500/10 flex items-center justify-center gap-2 cursor-pointer mt-2"
+            className="w-full py-3 px-4 bg-primary hover:bg-rose-soft/85 disabled:opacity-40 text-background rounded-xl text-xs font-bold transition-all duration-300 shadow-md shadow-primary/5 flex items-center justify-center gap-2 cursor-pointer mt-4"
           >
             {loading ? (
               <>
@@ -191,9 +191,9 @@ function RegisterForm() {
         </form>
 
         <div className="text-center pt-2">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-muted-foreground/60 font-light">
             Already have an account?{' '}
-            <Link href={`/login${searchParams.toString() ? '?' + searchParams.toString() : ''}`} className="text-violet-400 hover:underline font-medium">
+            <Link href={`/login${searchParams.toString() ? '?' + searchParams.toString() : ''}`} className="text-primary hover:underline font-bold transition-colors">
               Sign In
             </Link>
           </p>
@@ -205,14 +205,14 @@ function RegisterForm() {
 
 export default function RegisterPage() {
   return (
-    <main className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
-      {/* Decorative background blurs */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-violet-900/10 blur-[120px]" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-950/10 blur-[120px]" />
+    <main className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
+      {/* Soothing breathing glows from custom classes */}
+      <div className="breathing-glow-1 opacity-20" />
+      <div className="breathing-glow-2 opacity-20" />
 
       <Suspense fallback={
-        <div className="w-full max-w-md p-8 rounded-3xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-xl shadow-2xl flex items-center justify-center">
-          <Loader2 className="animate-spin text-violet-400" size={32} />
+        <div className="w-full max-w-md p-8 rounded-3xl bg-card border border-border shadow-2xl flex items-center justify-center">
+          <Loader2 className="animate-spin text-primary" size={32} />
         </div>
       }>
         <RegisterForm />

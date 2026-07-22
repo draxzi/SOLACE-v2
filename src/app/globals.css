@@ -1,29 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --border: #e2e8f0;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --primary: #6d28d9;
-  --primary-glow: rgba(109, 40, 217, 0.15);
-  --font-primary-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --background: #180018; /* Deep soothing plum/eggplant */
+  --foreground: #fafaf9; /* Warm cream */
+  --card: #250825; /* Slightly lighter purple card background */
+  --card-foreground: #fafaf9;
+  --border: #380b38; /* Soft purple borders */
+  --muted: #2d0a2d;
+  --muted-foreground: #c0a9ff; /* Soft lavender */
+  --primary: #fda4af; /* Soft rose accent */
+  --primary-glow: rgba(253, 164, 175, 0.12);
+  
+  --accent-rose: #fda4af;
+  --accent-peach: #ffedd5;
+  --accent-cream: #fafaf9;
+  --accent-purple: #c0a9ff;
+
+  --font-primary-sans: "Outfit", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-primary-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 .dark {
-  --background: #020617;
-  --foreground: #f8fafc;
-  --card: #0b0f19;
-  --card-foreground: #f8fafc;
-  --border: #1e293b;
-  --muted: #0f172a;
-  --muted-foreground: #94a3b8;
-  --primary: #8b5cf6;
-  --primary-glow: rgba(139, 92, 246, 0.15);
+  --background: #180018;
+  --foreground: #fafaf9;
+  --card: #250825;
+  --card-foreground: #fafaf9;
+  --border: #380b38;
+  --muted: #2d0a2d;
+  --muted-foreground: #c0a9ff;
+  --primary: #fda4af;
+  --primary-glow: rgba(253, 164, 175, 0.12);
 }
 
 @theme {
@@ -37,6 +43,11 @@
   --color-primary: var(--primary);
   --color-primary-glow: var(--primary-glow);
   
+  --color-rose-soft: var(--accent-rose);
+  --color-peach-soft: var(--accent-peach);
+  --color-cream-warm: var(--accent-cream);
+  --color-purple-soft: var(--accent-purple);
+  
   --font-sans: var(--font-primary-sans);
   --font-mono: var(--font-primary-mono);
 }
@@ -45,34 +56,33 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  overflow-x: hidden;
 }
 
-/* Custom Glassmorphism utility classes */
+/* Soothing transitions on routing elements */
+.page-transition {
+  animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom Glassmorphism utility classes matching the plum theme */
 .glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-.dark .glass {
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(37, 8, 37, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(253, 164, 175, 0.08);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(16px);
-}
-
-.dark .glass-card {
-  background: rgba(15, 23, 42, 0.4);
-  border: 1px solid rgba(30, 41, 59, 0.7);
+  background: rgba(37, 8, 37, 0.55);
+  border: 1px solid rgba(253, 164, 175, 0.12);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
 }
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -86,4 +96,120 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted-foreground);
+}
+
+/* Calming Breathing Animation */
+@keyframes breath {
+  0%, 100% {
+    transform: scale(1) translate(-50%, -50%);
+    opacity: 0.15;
+    filter: blur(120px);
+  }
+  50% {
+    transform: scale(1.15) translate(-45%, -45%);
+    opacity: 0.25;
+    filter: blur(140px);
+  }
+}
+
+.breathing-glow-1 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 55vw;
+  height: 55vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(192, 169, 255, 0.2) 0%, rgba(253, 164, 175, 0.05) 50%, rgba(0,0,0,0) 100%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: breath 12s ease-in-out infinite;
+}
+
+.breathing-glow-2 {
+  position: absolute;
+  top: 40%;
+  left: 60%;
+  width: 45vw;
+  height: 45vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(253, 164, 175, 0.15) 0%, rgba(192, 169, 255, 0.05) 50%, rgba(0,0,0,0) 100%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: breath 16s ease-in-out infinite reverse;
+}
+
+/* Glowing Thread Animation for Landing Page */
+@keyframes threadFlow {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.glowing-thread {
+  stroke-dasharray: 500;
+  animation: threadFlow 25s linear infinite;
+}
+
+/* Soft Fade In Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-message {
+  animation: fadeIn 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Calm, slow bounce for typing indicator */
+@keyframes slowBounce {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.animate-slow-bounce {
+  animation: slowBounce 1.6s ease-in-out infinite;
+}
+
+/* Premium Apple-level button micro-interactions */
+.btn-premium {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-premium:hover {
+  transform: translateY(-1px);
+}
+
+.btn-premium:active {
+  transform: translateY(0.5px) scale(0.98);
+}
+
+/* Shimmer placeholder keyframe */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-bg {
+  background: linear-gradient(90deg, var(--card) 25%, var(--muted) 50%, var(--card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite linear;
 }

@@ -25,18 +25,21 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
   return (
     <LayoutProvider>
-      <div className="h-screen w-screen flex overflow-hidden bg-slate-950 dark:bg-slate-950 light:bg-slate-50 transition-colors duration-200">
+      <div className="h-screen w-screen flex overflow-hidden bg-background transition-colors duration-300">
         
         {/* Collapsible Sidebar */}
         <Sidebar />
 
         {/* Main Work Pane */}
-        <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+        <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden relative">
+          {/* Decorative ambient breathing background glows inside shell */}
+          <div className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-primary-glow blur-[130px] pointer-events-none opacity-40" />
+
           {/* Dashboard Header Bar */}
           <Header />
 
           {/* Core Page Content */}
-          <div className="flex-1 overflow-hidden relative">
+          <div className="flex-1 overflow-hidden relative page-transition">
             {children}
           </div>
         </div>

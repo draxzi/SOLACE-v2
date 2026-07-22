@@ -22,7 +22,8 @@ import {
   Check,
   RotateCcw,
   Square,
-  AlertCircle
+  AlertCircle,
+  Heart
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -61,6 +62,7 @@ export default function ChatPage() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // 1. Fetch active conversation details
   const { data: conversation, isLoading: isConvLoading } = useQuery<Conversation | null>({
@@ -83,8 +85,33 @@ export default function ChatPage() {
         companionAvatar: data.companion_avatar,
       };
     },
-    enabled: !!chatId,
+    enabled: !!chatId && !!user,
   });
+
+  // Emotional Modes State resolved from companionName (which stores the active mode)
+  const activeMode = conversation?.companionName || 'Just Listen';
+
+  const handleModeChange = async (modeName: string) => {
+    if (!user || !conversation) return;
+    
+    // Update local query cache immediately to keep UX feel instant
+    queryClient.setQueryData(['conversation', chatId], (old: Conversation | null) => {
+      if (!old) return null;
+      return { ...old, companionName: modeName };
+    });
+
+    // Run remote Supabase update query
+    const { error: updateError } = await supabase
+      .from('conversations')
+      .update({ companion_name: modeName })
+      .eq('id', chatId);
+
+    if (updateError) {
+      console.error('Failed to update emotional mode:', updateError);
+    }
+
+    queryClient.invalidateQueries({ queryKey: ['conversations'] });
+  };
 
   // 2. Fetch conversation message logs
   const { data: messages = [], isLoading: isMessagesLoading } = useQuery<Message[]>({
@@ -112,7 +139,7 @@ export default function ChatPage() {
         createdAt: msg.created_at,
       }));
     },
-    enabled: !!chatId,
+    enabled: !!chatId && !!user,
   });
 
   // Scroll to bottom when messages or streamed text updates
@@ -124,6 +151,22 @@ export default function ChatPage() {
     scrollToBottom();
   }, [messages, streamedText]);
 
+  // Initial focus on mount
+  useEffect(() => {
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 100);
+  }, [chatId]);
+
+  // Auto-grow textarea handler
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.style.height = 'auto';
+    const newHeight = Math.min(textarea.scrollHeight, 160);
+    textarea.style.height = `${newHeight}px`;
+  }, [inputValue]);
+
   // Clean up abort controller on unmount
   useEffect(() => {
     return () => {
@@ -132,6 +175,19 @@ export default function ChatPage() {
       }
     };
   }, []);
+
+  // Keyboard shortcut submit handler
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (inputValue.trim() && !isStreaming) {
+        const form = e.currentTarget.form;
+        if (form) {
+          form.requestSubmit();
+        }
+      }
+    }
+  };
 
   // 3. Core Stream function
   const streamAiResponse = async (history: { role: string; content: string }[]) => {
@@ -147,6 +203,7 @@ export default function ChatPage() {
         body: JSON.stringify({
           chatId,
           messages: history.map(h => ({ role: h.role, content: h.content })),
+          mode: activeMode,
         }),
         signal: abortControllerRef.current.signal,
       });
@@ -178,10 +235,22 @@ export default function ChatPage() {
         setStreamedText(accumulated);
       }
 
-      // Stream completed successfully. Save response in Supabase DB.
+      // Stream completed successfully. Optimistically save in react query first to prevent disappearances
+      const assistantMsgId = crypto.randomUUID();
+      queryClient.setQueryData(['messages', chatId], (old: Message[] = []) => [
+        ...old,
+        {
+          id: assistantMsgId,
+          role: 'assistant',
+          content: accumulated,
+          createdAt: new Date().toISOString()
+        }
+      ]);
+
       const { error: saveError } = await supabase
         .from('messages')
         .insert({
+          id: assistantMsgId,
           conversation_id: chatId,
           role: 'assistant',
           content: accumulated,
@@ -203,9 +272,22 @@ export default function ChatPage() {
         // User clicked STOP generation. Save whatever we received so far.
         if (streamedText.trim()) {
           const finalContent = `${streamedText}\n\n*[Response stopped by user]*`;
+          const assistantMsgId = crypto.randomUUID();
+          
+          queryClient.setQueryData(['messages', chatId], (old: Message[] = []) => [
+            ...old,
+            {
+              id: assistantMsgId,
+              role: 'assistant',
+              content: finalContent,
+              createdAt: new Date().toISOString()
+            }
+          ]);
+
           await supabase
             .from('messages')
             .insert({
+              id: assistantMsgId,
               conversation_id: chatId,
               role: 'assistant',
               content: finalContent,
@@ -331,21 +413,47 @@ export default function ChatPage() {
     }
   };
 
+  // Render a custom shimmer skeleton loading screen for conversation info
   if (isConvLoading) {
     return (
-      <div className="h-full flex items-center justify-center text-slate-400 bg-slate-950">
-        <Loader2 className="animate-spin text-violet-400" size={24} />
+      <div className="h-full flex flex-col bg-background relative overflow-hidden">
+        {/* Ambient background glows */}
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-primary-glow blur-[140px] pointer-events-none opacity-40 animate-pulse" />
+        
+        {/* Top Info Bar Shimmer */}
+        <div className="h-16 border-b border-border bg-background/45 backdrop-blur-sm px-6 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3 w-1/3">
+            <div className="w-8 h-8 rounded-lg bg-card/60 animate-pulse border border-border shimmer-bg" />
+            <div className="space-y-1.5 flex-1">
+              <div className="h-2.5 bg-card/80 rounded animate-pulse w-24 shimmer-bg" />
+              <div className="h-1.5 bg-card/60 rounded animate-pulse w-12 shimmer-bg" />
+            </div>
+          </div>
+        </div>
+
+        {/* Shimmer Messages list */}
+        <div className="flex-1 p-6 space-y-6 overflow-y-auto max-w-3xl mx-auto w-full">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className={`flex gap-4 ${n % 2 === 0 ? 'justify-end' : 'justify-start'}`}>
+              {n % 2 !== 0 && <div className="w-8 h-8 rounded-xl bg-card border border-border/80 animate-pulse shrink-0 shimmer-bg" />}
+              <div className="space-y-2 max-w-[70%] flex-1">
+                <div className={`h-12 rounded-2xl animate-pulse ${n % 2 === 0 ? 'bg-primary/20 ml-auto' : 'bg-card/50 border border-border/40'} w-48 shimmer-bg`} />
+                <div className={`h-3.5 rounded animate-pulse bg-card/30 w-16 ${n % 2 === 0 ? 'ml-auto mr-2' : 'ml-2'} shimmer-bg`} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   if (!conversation) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-slate-400 bg-slate-950 space-y-4">
-        <p className="text-sm">Conversation not found.</p>
+      <div className="h-full flex flex-col items-center justify-center text-muted-foreground bg-background space-y-4">
+        <p className="text-xs font-light">Conversation not found.</p>
         <button 
           onClick={() => router.push('/chat')}
-          className="text-xs text-violet-400 hover:underline"
+          className="text-xs text-primary hover:underline font-bold transition-all btn-premium cursor-pointer animate-pulse"
         >
           Return to Workspace
         </button>
@@ -354,14 +462,17 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-slate-950 dark:bg-slate-950 light:bg-slate-50 transition-colors duration-200">
+    <div className="h-full flex flex-col bg-background text-foreground relative font-sans">
       
+      {/* Soft ambient background glow inside chat pane */}
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-primary-glow blur-[140px] pointer-events-none opacity-40 animate-pulse" />
+
       {/* Active Companion Top Info Bar */}
-      <div className="h-14 flex items-center justify-between px-4 border-b border-slate-900 bg-slate-905/40 backdrop-blur-sm dark:border-slate-800/80 light:border-slate-200 shrink-0">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-border bg-background/45 backdrop-blur-sm shrink-0 z-10 select-none">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => router.push('/chat')}
-            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 cursor-pointer"
+            className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-card/40 cursor-pointer transition-all duration-300 btn-premium"
           >
             <ArrowLeft size={16} />
           </button>
@@ -371,20 +482,20 @@ export default function ChatPage() {
             <img 
               src={conversation.companionAvatar} 
               alt={conversation.companionName} 
-              className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700/50 shrink-0" 
+              className="w-8 h-8 rounded-lg bg-background border border-border shrink-0 shadow-sm" 
             />
           ) : (
-            <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700/50 flex items-center justify-center shrink-0">
-              <Bot size={14} className="text-violet-400" />
+            <div className="w-8 h-8 rounded-lg bg-background border border-border flex items-center justify-center shrink-0 shadow-sm">
+              <Bot size={14} className="text-primary" />
             </div>
           )}
           
           <div>
-            <h1 className="text-xs font-bold text-slate-200 dark:text-slate-200 light:text-slate-900">
-              {conversation.companionName}
+            <h1 className="text-xs font-bold text-cream-warm tracking-wide uppercase">
+              Solace
             </h1>
             <p className="text-[9px] text-emerald-400 flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Online
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> companion online
             </p>
           </div>
         </div>
@@ -392,30 +503,49 @@ export default function ChatPage() {
         {/* Delete Chat Button */}
         <button
           onClick={handleDeleteChat}
-          className="p-2 text-slate-500 hover:text-red-400 hover:bg-slate-900/60 dark:hover:bg-slate-950/60 light:hover:bg-white rounded-lg transition-all cursor-pointer"
+          className="p-2 text-muted-foreground/60 hover:text-rose-soft hover:bg-card/45 rounded-lg transition-all duration-300 cursor-pointer btn-premium"
           title="Delete Chat"
         >
           <Trash2 size={16} />
         </button>
       </div>
 
+      {/* Emotional Modes Switcher Bar */}
+      <div className="px-6 py-2.5 bg-card/15 border-b border-border/40 flex items-center gap-2 overflow-x-auto scrollbar-none shrink-0 z-10 select-none">
+        <span className="text-[9px] text-muted-foreground/50 uppercase font-bold tracking-widest mr-1 shrink-0">Companion Mode:</span>
+        {['Just Listen', 'Breakup Support', 'Grief Support', 'Heavy Days'].map((modeName) => {
+          const isSelected = activeMode === modeName;
+          return (
+            <button
+              key={modeName}
+              onClick={() => handleModeChange(modeName)}
+              className={`px-3 py-1 rounded-full text-[10px] font-semibold transition-all duration-300 cursor-pointer border shrink-0 btn-premium ${
+                isSelected 
+                  ? 'bg-primary text-background border-primary shadow-sm font-bold'
+                  : 'bg-card/45 border-border/50 text-muted-foreground hover:text-foreground hover:bg-card/75'
+              }`}
+            >
+              {modeName}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
         {isMessagesLoading ? (
-          <div className="h-full flex items-center justify-center text-slate-500">
-            <Loader2 className="animate-spin text-slate-500" size={20} />
+          <div className="h-full flex items-center justify-center text-muted-foreground">
+            <Loader2 className="animate-spin text-muted-foreground/50" size={20} />
           </div>
         ) : messages.length === 0 && !streamedText ? (
-          <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-violet-500/10 border border-violet-500/20 text-violet-400 flex items-center justify-center shadow-lg shadow-violet-500/10">
-              <Bot size={20} />
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-6 fade-in-message select-none">
+            <div className="w-14 h-14 rounded-2xl bg-card border border-border text-primary shadow-lg shadow-black/10 shadow-primary/5 animate-pulse flex items-center justify-center">
+              <Heart size={22} className="fill-primary/10 text-primary" />
             </div>
-            <div className="space-y-1 max-w-xs">
-              <p className="text-xs font-bold text-slate-300 dark:text-slate-300 light:text-slate-800">
-                Say hello to {conversation.companionName}!
-              </p>
-              <p className="text-[10px] text-slate-500 dark:text-slate-500 light:text-slate-550 leading-normal">
-                Type a message in the input below. Your companion will respond in real-time using Groq.
+            <div className="space-y-3">
+              <h2 className="text-sm font-extrabold text-cream-warm tracking-wider uppercase">Solace</h2>
+              <p className="text-xs text-muted-foreground/85 leading-relaxed font-light">
+                You don&apos;t need the right words.<br />Just start wherever you are.
               </p>
             </div>
           </div>
@@ -431,27 +561,27 @@ export default function ChatPage() {
                     key={msg.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`flex items-start gap-3 group/msg ${isUser ? 'justify-end' : 'justify-start'}`}
+                    className={`flex items-start gap-4 group/msg fade-in-message ${isUser ? 'justify-end' : 'justify-start'}`}
                   >
                     {/* Avatar for Assistant */}
                     {!isUser && (
-                      <div className="shrink-0 w-7 h-7 rounded-lg bg-violet-600/10 border border-violet-500/20 text-violet-400 flex items-center justify-center text-[10px]">
+                      <div className="shrink-0 w-8 h-8 rounded-xl bg-card border border-border/80 text-primary flex items-center justify-center shadow-sm">
                         {conversation.companionAvatar ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={conversation.companionAvatar} alt="" className="w-full h-full rounded-lg" />
+                          <img src={conversation.companionAvatar} alt="" className="w-full h-full rounded-xl" />
                         ) : (
-                          <Bot size={14} />
+                          <Bot size={15} />
                         )}
                       </div>
                     )}
 
                     {/* Chat Bubble & Copy/Retry Actions */}
-                    <div className="flex flex-col gap-1 max-w-[80%] items-start">
+                    <div className="flex flex-col gap-1 max-w-[80%] md:max-w-[70%] items-start">
                       <div
-                        className={`rounded-2xl px-4 py-2.5 text-xs leading-relaxed shadow-sm w-full ${
+                        className={`rounded-[22px] px-4.5 py-3.5 text-xs leading-relaxed shadow-sm w-full ${
                           isUser
-                            ? 'bg-violet-600 text-white rounded-tr-none'
-                            : 'bg-slate-900 border border-slate-800 text-slate-200 dark:bg-slate-900/60 dark:border-slate-850 dark:text-slate-200 light:bg-white light:border-slate-200 light:text-slate-850 rounded-tl-none'
+                            ? 'bg-primary text-background rounded-tr-[4px] font-medium'
+                            : 'bg-card border border-border/60 text-foreground rounded-tl-[4px] font-light'
                         }`}
                       >
                         {isUser ? (
@@ -462,19 +592,19 @@ export default function ChatPage() {
                       </div>
                       
                       {/* Action buttons on message hover */}
-                      <div className={`opacity-0 group-hover/msg:opacity-100 flex items-center gap-1.5 text-[10px] text-slate-500 pl-1 mt-0.5 transition-opacity ${isUser ? 'self-end pr-1' : ''}`}>
+                      <div className={`opacity-0 group-hover/msg:opacity-100 flex items-center gap-1.5 text-[9px] text-muted-foreground/40 pl-1 mt-0.5 transition-opacity duration-300 ${isUser ? 'self-end pr-1' : ''}`}>
                         <button
                           onClick={() => handleCopy(msg.id, msg.content)}
-                          className="hover:text-slate-300 flex items-center gap-0.5 cursor-pointer py-0.5 px-1 rounded hover:bg-slate-900/60 light:hover:bg-slate-200"
+                          className="hover:text-foreground flex items-center gap-0.5 cursor-pointer py-0.5 px-1.5 rounded hover:bg-card transition-all duration-300 btn-premium"
                         >
                           {copiedId === msg.id ? (
                             <>
-                              <Check size={10} className="text-emerald-400" />
+                              <Check size={9} className="text-emerald-400" />
                               <span className="text-emerald-400">Copied</span>
                             </>
                           ) : (
                             <>
-                              <Copy size={10} />
+                              <Copy size={9} />
                               <span>Copy</span>
                             </>
                           )}
@@ -483,18 +613,23 @@ export default function ChatPage() {
                         {!isUser && isLastMsg && !isStreaming && (
                           <button
                             onClick={handleRetry}
-                            className="hover:text-slate-300 flex items-center gap-0.5 cursor-pointer py-0.5 px-1 rounded hover:bg-slate-900/60 light:hover:bg-slate-200"
+                            className="hover:text-foreground flex items-center gap-0.5 cursor-pointer py-0.5 px-1.5 rounded hover:bg-card transition-all duration-300 btn-premium"
                           >
-                            <RotateCcw size={10} />
+                            <RotateCcw size={9} />
                             <span>Retry</span>
                           </button>
                         )}
                       </div>
+
+                      {/* Nicer subtle timestamps */}
+                      <span className={`text-[8px] text-muted-foreground/35 px-2 select-none font-light ${isUser ? 'self-end' : 'self-start'}`}>
+                        {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
 
                     {/* Avatar for User */}
                     {isUser && (
-                      <div className="shrink-0 w-7 h-7 rounded-lg bg-slate-800 border border-slate-700/50 flex items-center justify-center text-slate-400 text-[10px]">
+                      <div className="shrink-0 w-8 h-8 rounded-xl bg-card border border-border/80 flex items-center justify-center text-muted-foreground shadow-sm">
                         <UserIcon size={14} />
                       </div>
                     )}
@@ -505,49 +640,49 @@ export default function ChatPage() {
             
             {/* Live Streaming Active Bubble */}
             {isStreaming && streamedText && (
-              <div className="flex items-start gap-3 justify-start">
-                <div className="shrink-0 w-7 h-7 rounded-lg bg-violet-600/10 border border-violet-500/20 text-violet-400 flex items-center justify-center">
+              <div className="flex items-start gap-4 justify-start fade-in-message">
+                <div className="shrink-0 w-8 h-8 rounded-xl bg-card border border-border/80 text-primary flex items-center justify-center shadow-sm">
                   {conversation.companionAvatar ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={conversation.companionAvatar} alt="" className="w-full h-full rounded-lg" />
+                    <img src={conversation.companionAvatar} alt="" className="w-full h-full rounded-xl" />
                   ) : (
-                    <Bot size={14} />
+                    <Bot size={15} />
                   )}
                 </div>
-                <div className="flex flex-col gap-1 max-w-[80%] items-start">
-                  <div className="rounded-2xl px-4 py-2.5 text-xs leading-relaxed shadow-sm bg-slate-900 border border-slate-800 text-slate-200 dark:bg-slate-900/60 dark:border-slate-850 dark:text-slate-200 light:bg-white light:border-slate-200 light:text-slate-850 rounded-tl-none w-full">
+                <div className="flex flex-col gap-1 max-w-[80%] md:max-w-[70%] items-start">
+                  <div className="rounded-[22px] rounded-tl-[4px] px-4.5 py-3.5 text-xs leading-relaxed shadow-sm bg-card border border-border/60 text-foreground font-light w-full">
                     <Markdown content={streamedText} />
-                    <span className="inline-block h-3 w-1.5 bg-violet-400 rounded-sm animate-pulse ml-0.5" />
+                    <span className="inline-block h-3 w-1.5 bg-primary rounded-sm animate-pulse ml-0.5" />
                   </div>
                 </div>
               </div>
             )}
             
-            {/* Standard Loading Typing indicator */}
+            {/* Standard Loading Typing indicator using calm slow-bounce */}
             {isStreaming && !streamedText && (
-              <div className="flex items-start gap-3 justify-start animate-fade-in">
-                <div className="shrink-0 w-7 h-7 rounded-lg bg-violet-600/10 border border-violet-500/20 text-violet-400 flex items-center justify-center">
-                  <Bot size={14} />
+              <div className="flex items-start gap-4 justify-start fade-in-message">
+                <div className="shrink-0 w-8 h-8 rounded-xl bg-card border border-border/80 text-primary flex items-center justify-center shadow-sm">
+                  <Bot size={15} />
                 </div>
-                <div className="bg-slate-900 border border-slate-800 dark:bg-slate-900/60 dark:border-slate-850 rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-1.5 shadow-sm">
-                  <span className="h-1.5 w-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="h-1.5 w-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="h-1.5 w-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="bg-card border border-border/60 rounded-[22px] rounded-tl-[4px] px-4.5 py-3.5 flex items-center gap-1.5 shadow-sm">
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-slow-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-slow-bounce" style={{ animationDelay: '250ms' }} />
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-slow-bounce" style={{ animationDelay: '500ms' }} />
                 </div>
               </div>
             )}
 
             {/* Error Message bar */}
             {error && (
-              <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center justify-between gap-3 max-w-xl mx-auto">
+              <div className="p-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center justify-between gap-3 max-w-xl mx-auto">
                 <div className="flex items-center gap-2">
                   <AlertCircle size={16} className="shrink-0 text-red-400" />
-                  <span>{error}</span>
+                  <span className="font-light">{error}</span>
                 </div>
                 {!isStreaming && (
                   <button 
                     onClick={handleRetry}
-                    className="px-2.5 py-1 rounded bg-red-500/20 hover:bg-red-500/30 text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-full bg-red-500/20 hover:bg-red-500/30 text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-all duration-300 btn-premium"
                   >
                     Retry
                   </button>
@@ -561,40 +696,41 @@ export default function ChatPage() {
       </div>
 
       {/* Input Message Form / Stream Actions */}
-      <div className="p-4 border-t border-slate-900 dark:border-slate-800/80 light:border-slate-200 bg-slate-950 shrink-0">
+      <div className="p-4 bg-background/30 backdrop-blur-sm border-t border-border/60 shrink-0">
         
         {/* Stream control bar */}
         {isStreaming && (
           <div className="flex justify-center mb-3">
             <button
               onClick={handleStopGeneration}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-800 bg-slate-900 hover:bg-slate-800 text-[10px] text-slate-300 font-bold transition-all shadow-md cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-border bg-card hover:bg-card/80 text-[10px] text-muted-foreground font-bold transition-all duration-300 shadow-md cursor-pointer btn-premium"
             >
-              <Square size={10} className="fill-slate-300" />
+              <Square size={10} className="fill-muted-foreground/60 text-muted-foreground/60" />
               Stop Responding
             </button>
           </div>
         )}
 
-        <form onSubmit={handleSend} className="max-w-3xl mx-auto relative flex items-center">
-          <input
-            type="text"
-            required
+        <form onSubmit={handleSend} className="max-w-2xl mx-auto w-full relative flex items-end p-2 bg-card/65 border border-border focus-within:border-primary/40 rounded-3xl shadow-lg transition-all duration-300">
+          <textarea
+            ref={textareaRef}
+            rows={1}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
             disabled={isStreaming}
-            placeholder={isStreaming ? "Companion is thinking..." : `Message ${conversation.companionName}...`}
-            className="w-full pl-4 pr-12 py-3 bg-slate-900/40 border border-slate-800/80 focus:border-violet-500/50 rounded-xl text-slate-250 text-xs focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all placeholder:text-slate-500 dark:bg-slate-950/60 dark:border-slate-800 light:bg-white light:border-slate-200 light:text-slate-850"
-            aria-label={`Message text for ${conversation.companionName}`}
+            placeholder={isStreaming ? "Thinking..." : `Message Solace...`}
+            className="w-full pl-4 pr-12 py-3 bg-transparent border-none outline-none text-foreground text-xs focus:ring-0 focus:outline-none placeholder:text-muted-foreground/40 font-light resize-none max-h-40 overflow-y-auto scrollbar-none"
+            aria-label={`Message text input`}
           />
           <button
             type="submit"
             disabled={!inputValue.trim() || isStreaming}
-            className="absolute right-2 p-2 bg-violet-600 hover:bg-violet-500 disabled:opacity-30 disabled:hover:bg-violet-600 text-white rounded-lg transition-all cursor-pointer flex items-center justify-center shrink-0"
+            className="absolute right-3.5 bottom-3.5 p-2.5 bg-primary hover:bg-rose-soft/85 disabled:opacity-30 text-background rounded-full transition-all duration-300 cursor-pointer flex items-center justify-center shrink-0 w-9 h-9 shadow-md btn-premium"
             title="Send Message"
             aria-label="Send message"
           >
-            <Send size={12} />
+            <Send size={14} />
           </button>
         </form>
       </div>

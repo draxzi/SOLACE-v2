@@ -10,19 +10,41 @@ export default function LandingPage() {
   const { user } = useAuth();
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-200 flex flex-col relative overflow-hidden font-sans select-none justify-between">
+    <main className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden font-sans justify-between">
       
-      {/* Gentle, breathing ambient glow circles */}
-      <div className="absolute top-[-30%] left-[-20%] w-[70%] h-[70%] rounded-full bg-violet-900/10 blur-[130px] pointer-events-none animate-pulse" style={{ animationDuration: '8s' }} />
-      <div className="absolute bottom-[-30%] right-[-20%] w-[70%] h-[70%] rounded-full bg-indigo-950/10 blur-[130px] pointer-events-none animate-pulse" style={{ animationDuration: '10s' }} />
+      {/* Soothing breathing glows from custom classes */}
+      <div className="breathing-glow-1" />
+      <div className="breathing-glow-2" />
+
+      {/* Floating Animated Soothing Glowing Thread (SVG) */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
+        <svg className="w-full h-full" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <motion.path
+            d="M-100 450 C300 200, 400 700, 720 450 C1040 200, 1140 700, 1540 450"
+            stroke="url(#thread-gradient)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            className="glowing-thread"
+          />
+          <defs>
+            <linearGradient id="thread-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#c0a9ff" stopOpacity="0" />
+              <stop offset="25%" stopColor="#c0a9ff" stopOpacity="0.4" />
+              <stop offset="50%" stopColor="#fda4af" stopOpacity="0.8" />
+              <stop offset="75%" stopColor="#ffedd5" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#ffedd5" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
 
       {/* Top Header Navigation */}
-      <header className="w-full h-20 flex items-center justify-between px-6 lg:px-16 z-20 shrink-0">
+      <header className="w-full h-24 flex items-center justify-between px-8 lg:px-20 z-20 shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-violet-650/80 flex items-center justify-center text-white shadow-lg shadow-violet-500/10">
-            <Bot size={13} />
+          <div className="w-7 h-7 rounded-xl bg-muted border border-border flex items-center justify-center text-primary shadow-[0_4px_12px_rgba(37,8,37,0.5)]">
+            <Bot size={14} />
           </div>
-          <span className="text-xs font-black tracking-widest text-slate-100 uppercase">
+          <span className="text-xs font-black tracking-widest text-cream-warm uppercase">
             SOLACE
           </span>
         </div>
@@ -31,14 +53,14 @@ export default function LandingPage() {
           {user ? (
             <Link 
               href="/chat"
-              className="text-xs font-semibold px-4.5 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-100 rounded-full transition-all"
+              className="text-[10px] uppercase tracking-wider font-extrabold px-6 py-2.5 bg-card border border-border hover:border-primary/20 text-foreground rounded-full transition-all duration-300"
             >
-              Open Chat
+              Open Workspace
             </Link>
           ) : (
             <Link 
               href="/login"
-              className="text-xs font-semibold px-4.5 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-100 rounded-full transition-all"
+              className="text-[10px] uppercase tracking-wider font-extrabold px-6 py-2.5 bg-card border border-border hover:border-primary/20 text-foreground rounded-full transition-all duration-300"
             >
               Sign In
             </Link>
@@ -47,60 +69,60 @@ export default function LandingPage() {
       </header>
 
       {/* Soothing Hero Section */}
-      <section className="max-w-4xl w-full mx-auto px-6 lg:px-16 z-10 flex flex-col items-center text-center gap-8 py-10">
+      <section className="max-w-4xl w-full mx-auto px-8 lg:px-20 z-10 flex flex-col items-center text-center gap-10 py-12">
         
-        {/* Soft, heart icon placeholder indicating emotion support */}
+        {/* Soft pulsing heart indicator */}
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1 }}
-          className="w-12 h-12 rounded-full bg-violet-500/5 border border-violet-500/10 flex items-center justify-center text-violet-400/70 shadow-inner"
+          transition={{ duration: 1.5 }}
+          className="w-14 h-14 rounded-full bg-card/60 border border-border/80 flex items-center justify-center text-primary/80 shadow-lg shadow-black/10"
         >
-          <Heart size={18} className="fill-violet-400/5 animate-pulse" style={{ animationDuration: '4s' }} />
+          <Heart size={20} className="fill-primary/5 animate-pulse" style={{ animationDuration: '6s' }} />
         </motion.div>
 
-        <div className="space-y-4 max-w-2xl">
+        <div className="space-y-6 max-w-2xl">
           <motion.h1 
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-[1.1] text-slate-100"
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.08] text-foreground"
           >
-            You&apos;re safe here.
+            You don&apos;t have to<br />carry everything alone.
           </motion.h1>
 
           <motion.p 
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-slate-450 text-sm sm:text-base leading-relaxed font-light"
+            transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="text-muted-foreground text-sm sm:text-base leading-relaxed font-light px-4"
           >
-            Whenever life feels heavy, you don&apos;t have to carry it alone.
+            Whenever you&apos;re ready, I&apos;m here.
           </motion.p>
         </div>
 
         <motion.div 
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="pt-4"
+          transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="pt-2"
         >
           <Link 
             href="/chat"
-            className="px-8 py-3.5 bg-violet-600 hover:bg-violet-500 text-white rounded-full text-xs font-bold transition-all shadow-xl shadow-violet-600/15 flex items-center justify-center gap-2 group"
+            className="px-10 py-4 bg-primary hover:bg-rose-soft/80 text-background rounded-full text-xs font-black uppercase tracking-wider transition-all duration-300 shadow-xl shadow-primary/10 hover:shadow-primary/20 flex items-center justify-center gap-2 group"
           >
             Start Talking
           </Link>
         </motion.div>
 
-        {/* Minimal Disclaimer & Statement */}
+        {/* Soothing Disclaimer */}
         <motion.div 
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.6 }}
-          transition={{ duration: 1.2, delay: 0.8 }}
-          className="max-w-md border-t border-slate-900/60 pt-8 mt-4 text-[10px] text-slate-500 leading-relaxed font-light"
+          animate={{ opacity: 0.55 }}
+          transition={{ duration: 2, delay: 0.7 }}
+          className="max-w-md border-t border-border/40 pt-10 mt-6 text-[10px] text-muted-foreground leading-relaxed font-light"
         >
-          <p className="font-semibold text-slate-400 mb-1">
+          <p className="font-bold text-cream-warm mb-1.5 uppercase tracking-wider">
             Solace is an emotionally supportive AI companion.
           </p>
           <p>
@@ -109,9 +131,9 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* Minimal Footer */}
-      <footer className="w-full py-8 text-center text-[9px] text-slate-650 z-20 shrink-0">
-        &copy; {new Date().getFullYear()} Solace. Minimal, private, emotionally supportive companion.
+      {/* Soothing Footer */}
+      <footer className="w-full py-10 text-center text-[10px] text-muted-foreground/40 z-20 shrink-0 font-light tracking-wide">
+        &copy; {new Date().getFullYear()} Solace. A quiet place to breathe, think, and talk.
       </footer>
 
     </main>
